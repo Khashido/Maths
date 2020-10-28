@@ -4,36 +4,56 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     TextView expression, scores;
-    Button yes, no;
-    boolean f;
+    Button yes, no, GO;
+    ProgressBar progressBar;
+    boolean f,isStart;
     int level,score, count = 0;
     int wait = 2;
     int where = -1;
+    CountDownTimer timer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         yes = findViewById(R.id.buttYes);
         no = findViewById(R.id.buttNo);
+        GO = findViewById(R.id.start);
+        progressBar = findViewById(R.id.progressBar);
         expression = findViewById(R.id.expression);
         scores = findViewById(R.id.scores);
         f = true;
+        isStart = false;
         level = 1;
         score = 0;
         game(level);
+        timer = new CountDownTimer(3000,10){
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                progressBar.setProgress((int) (millisUntilFinished/10));
+            }
+
+            @Override
+            public void onFinish() {
+                expression.setText(score + "\nGame over");
+            }
+        };
     }
 
 
 
     public void game(int lvl){
+
         scores.setText(score+"");
         String[] primer = exp(lvl);
         String s = primer[0];
@@ -55,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
             else
                 result -= r.nextInt(10)+1;
             expression.setText(topText + "\n= " + result);
+        }
+        if(isStart){
+            timer.start();
         }
     }
 
@@ -81,11 +104,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onYesClick(View view) {
         if(!f){
+            f = true;
             level = 1;
             score = 0;
             game(level);
         }
         else if(where == 1){
+            isStart = true;
             score += 1;
             game(++level);
         }
@@ -97,11 +122,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onNoClick(View view) {
         if(!f){
+            f = true;
             level = 1;
             score = 0;
             game(level);
         }
         else if(where == 0){
+            isStart = true;
             score += 1;
             game(++level);
         }
@@ -110,4 +137,5 @@ public class MainActivity extends AppCompatActivity {
             expression.setText(score + "\nGame over");
         }
     }
+
 }
