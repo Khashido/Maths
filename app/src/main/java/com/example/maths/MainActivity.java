@@ -11,7 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Random;
-
+//проверка веток
 public class MainActivity extends AppCompatActivity{
     TextView expression, scores;
     Button yes, no, GO;
