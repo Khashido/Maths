@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity{
 
             @Override
             public void onTick(long millisUntilFinished) {
-                progressBar.setProgress((int) (millisUntilFinished/10));
+                progressBar.setProgress((int) (millisUntilFinished/10)) ;
             }
 
             @Override
