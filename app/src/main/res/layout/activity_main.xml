@@ -35,7 +35,7 @@
         <TextView
             android:id="@+id/expression"
             android:layout_width="match_parent"
-            android:layout_height="438dp"
+            android:layout_height="350dp"
             android:layout_gravity="center"
             android:autoSizeTextType="none"
             android:breakStrategy="high_quality"
@@ -47,6 +47,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="50dp"
             android:orientation="horizontal">
 
             <Button
@@ -55,9 +56,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/colorAccent"
+                android:onClick="onYesClick"
                 android:text="TRUE"
-                android:textSize="50sp"
-                android:onClick="onYesClick"/>
+                android:textSize="50sp" />
 
             <Button
                 android:id="@+id/buttNo"
@@ -65,9 +66,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/NO"
+                android:onClick="onNoClick"
                 android:text="FALSE"
-                android:textSize="50sp"
-                android:onClick="onNoClick"/>
+                android:textSize="50sp" />
         </LinearLayout>
     </LinearLayout>
 

@@ -1,8 +1,10 @@
 package com.example.maths;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
-import android.os.AsyncTask;
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -10,16 +12,22 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
+
 
 public class MainActivity extends AppCompatActivity{
     TextView expression, scores;
     Button yes, no, GO;
     ProgressBar progressBar;
     boolean f,isStart;
-    int level,score, count = 0;
-    int wait = 2;
+    int level,score, count = 0, best;
     int where = -1;
+    String fileName = "best.txt",ex="ko";
     CountDownTimer timer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +43,20 @@ public class MainActivity extends AppCompatActivity{
         isStart = false;
         level = 1;
         score = 0;
+        SharedPreferences sp = getSharedPreferences("com.example.maths",MODE_PRIVATE);
+        if(sp.getBoolean("firstrun",true)){
+            try {
+                fWrite("0",fileName);
+                sp.edit().putBoolean("firstrun",false).commit();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            best = Integer.parseInt(fRead(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         game(level);
         timer = new CountDownTimer(3000,10){
 
@@ -43,9 +65,13 @@ public class MainActivity extends AppCompatActivity{
                 progressBar.setProgress((int) (millisUntilFinished/10)) ;
             }
 
+            @SuppressLint("ResourceAsColor")
             @Override
             public void onFinish() {
-                expression.setText(score + "\nGame over");
+                scores.setGravity(1);
+                scores.setTextColor(getResources().getColor(R.color.NO));
+                scores.setText(ex);
+                expression.setText("Game over\ncurrent: " + score + "\nbest: " + best);
             }
         };
     }
@@ -53,7 +79,7 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void game(int lvl){
-
+        scores.setTextColor(getResources().getColor(R.color.black));
         scores.setText(score+"");
         String[] primer = exp(lvl);
         String s = primer[0];
@@ -66,6 +92,7 @@ public class MainActivity extends AppCompatActivity{
         if(d >= 0.5) {
             where = 1;//true
             expression.setText(topText + "\n" + botText);
+            ex =  topText + " " + botText;
         }
         else {
             where = 0;//false
@@ -74,6 +101,7 @@ public class MainActivity extends AppCompatActivity{
                 result += r.nextInt(10)+1;
             else
                 result -= r.nextInt(10)+1;
+            ex = topText + " = " + result;
             expression.setText(topText + "\n= " + result);
         }
         if(isStart){
@@ -87,8 +115,8 @@ public class MainActivity extends AppCompatActivity{
         Random r = new Random();
         String[] res = new String[2];
         char operation;
-        x = (int) Math.round(Math.random()*10*level)+1;
-        y = (int) Math.round(Math.random()*10*level)+1;
+        x = (int) Math.round(Math.random()*10*(level/10+1))+1;
+        y = (int) Math.round(Math.random()*10*(level/10+1))+1;
         op = r.nextInt(2);
         switch (op){
             case 0: operation = '+'; result = x + y;break;
@@ -102,40 +130,70 @@ public class MainActivity extends AppCompatActivity{
         return res;
     }
 
-    public void onYesClick(View view) {
+    public void onYesClick(View view) throws IOException {
         if(!f){
             f = true;
             level = 1;
             score = 0;
+            scores.setGravity(5);
             game(level);
         }
         else if(where == 1){
             isStart = true;
             score += 1;
+            if(best < score)
+                best = score;
             game(++level);
         }
         else{
             f = false;
-            expression.setText(score + "\nGame over");
+            fWrite(best+"",fileName);
+            ex += " !true";
+            /*scores.setText(s);
+            scores.setGravity(1);
+            expression.setText("Game over\ncurrent: " + score + "\nbest: " + best);*/
+            timer.onFinish();
         }
     }
 
-    public void onNoClick(View view) {
+    public void onNoClick(View view) throws IOException {
         if(!f){
             f = true;
             level = 1;
             score = 0;
+            scores.setGravity(5);
             game(level);
         }
         else if(where == 0){
             isStart = true;
             score += 1;
+            if(best < score)
+                best = score;
             game(++level);
         }
         else{
             f = false;
-            expression.setText(score + "\nGame over");
+            fWrite(best+"",fileName);
+            ex += " !false";
+            /*scores.setText("");
+            scores.setText(s);
+            scores.setGravity(1);
+            expression.setText("Game over\ncurrent: " + score + "\nbest: " + best);*/
+            timer.onFinish();
         }
     }
 
+    public void fWrite(String text, String src) throws IOException {
+        FileOutputStream fos = openFileOutput(fileName, MODE_PRIVATE);
+        fos.write(text.getBytes());
+        fos.close();
+    }
+    public String fRead(String src) throws IOException {
+        FileInputStream fin = openFileInput(fileName);
+        byte[] bytes = new byte[fin.available()];
+        fin.read(bytes);
+        String text = new String (bytes);
+        fin.close();
+        return text;
+    }
 }

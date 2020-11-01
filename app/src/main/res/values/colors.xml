@@ -6,4 +6,5 @@
     <color name="NO">#FA4437</color>
     <color name="colorPimary2">#36F4DE</color>
     <color name="colorPrimaryDark2">#F84C40</color>
+    <color name="black">#000000</color>
 </resources>
